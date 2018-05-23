@@ -13,7 +13,6 @@ import java.util.zip.ZipEntry;
  * Utils for classes.
  * 
  * @author Peter Rader
- *
  */
 public class ClassUtils {
 

@@ -14,7 +14,6 @@ import java.io.IOException;
  * Some of the methods should not be used.
  * 
  * @author Peter Rader
- *
  */
 public interface DefaultJavaTargetFileObject extends UnusedDiscriminatorJavaFileObject {
 

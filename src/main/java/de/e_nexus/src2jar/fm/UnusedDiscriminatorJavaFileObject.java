@@ -18,11 +18,9 @@ import javax.tools.JavaFileObject;
 
 /**
  * File adapter for all files src2jar require.
- * <p>
- * This might be a classfile or a sourcefile.
+ * <p>This might be a classfile or a sourcefile.
  * 
  * @author Peter Rader
- *
  */
 public interface UnusedDiscriminatorJavaFileObject extends JavaFileObject {
 

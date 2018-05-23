@@ -9,8 +9,6 @@ package de.e_nexus.src2jar.fm;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.tools.JavaFileObject.Kind;
-
 /**
  * The class holding the bytecode of a {@link JavaSource}.
  * <p>
@@ -18,7 +16,6 @@ import javax.tools.JavaFileObject.Kind;
  * compilation succeeded. If the compilation is running the state is unknown.
  * 
  * @author Peter Rader
- *
  */
 public final class JavaTarget extends ByteArrayOutputStream implements DefaultJavaTargetFileObject {
 	/**

@@ -9,13 +9,10 @@ package de.e_nexus.src2jar.fm;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.tools.JavaFileObject.Kind;
-
 /**
  * Discrimiate unused methods to a in-memory sourcecode-object.
  * 
  * @author Peter Rader
- *
  */
 public interface UnusedDiscriminatorJavaSourceObject extends UnusedDiscriminatorJavaFileObject {
 	/**

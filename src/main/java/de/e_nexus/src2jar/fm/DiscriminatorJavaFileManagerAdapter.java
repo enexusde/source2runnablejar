@@ -19,7 +19,6 @@ import javax.tools.StandardJavaFileManager;
  * The default java file manager.
  * 
  * @author Peter Rader
- *
  */
 public interface DiscriminatorJavaFileManagerAdapter extends StandardJavaFileManager {
 	/**

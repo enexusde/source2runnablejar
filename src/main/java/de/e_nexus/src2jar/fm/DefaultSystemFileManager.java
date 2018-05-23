@@ -7,11 +7,15 @@
 package de.e_nexus.src2jar.fm;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JFormattedTextField;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -34,7 +38,6 @@ import de.e_nexus.src2jar.stream.CompileJarOutputStream;
  * directory-listing requests.
  * 
  * @author Peter Rader
- *
  */
 public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAdapter {
 
@@ -48,7 +51,7 @@ public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAda
 	/**
 	 * The cache for list-request to the genuine {@link JavaFileManager}.
 	 */
-	private static Map<String, ListCache> listingCache = new LinkedHashMap<>();
+	private static final Map<String, ListCache> LISTING_CACHE = new LinkedHashMap<>();
 
 	/**
 	 * Cache entry to cache the list-requests of the genuine
@@ -64,15 +67,25 @@ public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAda
 		 * {@link StandardLocation#PLATFORM_CLASS_PATH} is used.
 		 */
 		private final Location location;
+
 		/**
 		 * The package to list for.
 		 */
 		private final String packageName;
+
 		/**
 		 * The kinds to use.
 		 */
 		private final Set<Kind> kinds;
+
+		/**
+		 * The list of {@link JavaFileObject}.
+		 */
 		private Iterable<JavaFileObject> cache;
+
+		/**
+		 * The key to use.
+		 */
 		private final String key;
 
 		public ListCache(Location location, String packageName, Set<Kind> kinds) {
@@ -103,9 +116,20 @@ public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAda
 	 * 
 	 * @param fileManager
 	 *            The filemanager to use.
+	 * @param endorsedJars
+	 *            The additional jars to use for compilation, can be empty but never
+	 *            <code>null</code>.
 	 */
-	public DefaultSystemFileManager(StandardJavaFileManager fileManager) {
+	public DefaultSystemFileManager(StandardJavaFileManager fileManager, Set<File> endorsedJars) {
 		this.fileManager = fileManager;
+		LinkedList<String> endorsedPaths = new LinkedList<>();
+		for (File file : Collections.unmodifiableSet(endorsedJars)) {
+			assert file.exists() : file + " not exists, might break in production.";
+			endorsedPaths.add(file.toPath().toString());
+		}
+		if (!endorsedPaths.isEmpty()) {
+			fileManager.handleOption("-classpath", endorsedPaths.iterator());
+		}
 	}
 
 	/**
@@ -122,6 +146,9 @@ public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAda
 	 * Notice that the results are cached a second time if there are results to
 	 * cache. If no results are cached because there are no results, dont cache the
 	 * empty list in order to ignore run-time compilations.
+	 * 
+	 * @return A list of {@link JFormattedTextField}, may be empty, never
+	 *         <code>null</code>.
 	 */
 	public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds, boolean recurse)
 			throws IOException {
@@ -129,13 +156,12 @@ public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAda
 			throw new IllegalStateException("Not implemented!");
 		}
 		ListCache cache = new ListCache(location, packageName, kinds);
-		if (listingCache.containsKey(cache.key)) {
-			System.out.println("FOUND");
-			return listingCache.get(cache.key).getList();
+		if (LISTING_CACHE.containsKey(cache.key)) {
+			return LISTING_CACHE.get(cache.key).getList();
 		}
 		Iterable<JavaFileObject> list = cache.getList();
 		if (list.iterator().hasNext()) {
-			listingCache.put(cache.key, cache);
+			LISTING_CACHE.put(cache.key, cache);
 		}
 		return list;
 	}
@@ -213,9 +239,17 @@ public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAda
 	}
 
 	/**
-	 * Returns <code>false</code> always, a in-memory class has no location.
+	 * Returns <code>false</code> always, a in-memory class has no location!
 	 */
 	public boolean hasLocation(Location location) {
 		return false;
+	}
+
+	/**
+	 * Clears the internal cache. This is required to ignore classes that have been
+	 * generated in the past.
+	 */
+	public void clearCache() {
+		LISTING_CACHE.clear();
 	}
 }

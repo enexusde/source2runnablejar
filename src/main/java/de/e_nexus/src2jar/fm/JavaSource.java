@@ -18,11 +18,10 @@ import de.e_nexus.src2jar.jsn.ClassUtils;
  * 
  * <p>
  * Because we do not parse the source, the Classname must be specified by
- * yourself. You could use {@link ClassUtils#toSimplename(String)} to
- * convert a filename to a simple classname.
+ * yourself. You could use {@link ClassUtils#toSimplename(String)} to convert a
+ * filename to a simple classname.
  * 
  * @author Peter Rader
- *
  */
 public final class JavaSource implements UnusedDiscriminatorJavaSourceObject {
 	/**
@@ -31,6 +30,16 @@ public final class JavaSource implements UnusedDiscriminatorJavaSourceObject {
 	private final String sourceCode;
 	private final String simpleClassName;
 
+	/**
+	 * Constructor for a source file.
+	 * 
+	 * @param sourceCode
+	 *            The java code, including package declaration, comments, nested
+	 *            classes or class.
+	 * @param simpleClassName
+	 *            The simple classname without package declaration. A anonymous
+	 *            class should be <code>null</code>.
+	 */
 	public JavaSource(String sourceCode, String simpleClassName) {
 		this.sourceCode = sourceCode;
 		this.simpleClassName = simpleClassName;

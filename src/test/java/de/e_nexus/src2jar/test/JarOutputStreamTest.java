@@ -10,17 +10,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
 import de.e_nexus.src2jar.stream.CompileJarOutputStream;
 
 public class JarOutputStreamTest {
+	@SuppressWarnings("deprecation")
 	public void testJar() throws Exception {
 
 		File tmpJar = File.createTempFile("s2j", "test.jar");
 
-		JarOutputStream jos = new CompileJarOutputStream(new FileOutputStream(tmpJar));
+		CompileJarOutputStream jos = new CompileJarOutputStream(new FileOutputStream(tmpJar));
 		jos.putNextEntry(new ZipEntry("de/Test.java"));
 		jos.write("package de; public class Test{public int test(){return 22;}}".getBytes());
 		jos.closeEntry();
@@ -29,5 +29,10 @@ public class JarOutputStreamTest {
 		Object k = cl.loadClass("de.Test").newInstance();
 		Number n = (Number) k.getClass().getMethod("test").invoke(k);
 		assert n.intValue() == 22;
+	}
+
+	public static void main(String[] args) throws Exception {
+		JarOutputStreamTest jso = new JarOutputStreamTest();
+		jso.testJar();
 	}
 }
