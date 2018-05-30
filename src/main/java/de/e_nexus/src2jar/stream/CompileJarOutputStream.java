@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
 import javax.tools.JavaCompiler;
@@ -34,6 +36,8 @@ import de.e_nexus.src2jar.jsn.ClassUtils;
  * @author Peter Rader
  */
 public class CompileJarOutputStream extends JarOutputStream {
+
+	private static final Logger LOG = Logger.getLogger(CompileJarOutputStream.class.getCanonicalName());
 
 	/**
 	 * The cache of outputstreams to write.
@@ -115,8 +119,11 @@ public class CompileJarOutputStream extends JarOutputStream {
 				compiler.getStandardFileManager(null, null, null), endorsedJars);
 		Map<ZipEntry, JavaSource> sources = new LinkedHashMap<>();
 		for (ZipEntry zipEntry : cache.keySet()) {
-			ByteArrayOutputStream byteArrayOutputStream = cache.get(zipEntry);
-			sources.put(zipEntry, new JavaSource(byteArrayOutputStream.toString(), names.get(zipEntry)));
+			ByteArrayOutputStream sourceCode = cache.get(zipEntry);
+			if (LOG.isLoggable(Level.FINEST)) {
+				LOG.finest("Source of " + zipEntry + " Code: " + sourceCode);
+			}
+			sources.put(zipEntry, new JavaSource(sourceCode.toString(), names.get(zipEntry)));
 		}
 		compiler.getTask(null, fileManager, null, Arrays.asList("-g:lines"), null, sources.values()).call();
 		fileManager.close();

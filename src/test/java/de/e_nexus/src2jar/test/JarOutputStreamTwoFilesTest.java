@@ -14,15 +14,16 @@ import java.util.zip.ZipEntry;
 
 import de.e_nexus.src2jar.stream.CompileJarOutputStream;
 
-public class JarOutputStreamTest {
-	@SuppressWarnings("deprecation")
-	public void testJar() throws Exception {
+public class JarOutputStreamTwoFilesTest {
 
+	public void testCompilation() throws Exception {
 		File tmpJar = File.createTempFile("s2j", "test.jar");
-
 		CompileJarOutputStream jos = new CompileJarOutputStream(new FileOutputStream(tmpJar));
 		jos.putNextEntry(new ZipEntry("de/Test.java"));
 		jos.write("package de; public class Test{public int test(){return 22;}}".getBytes());
+		jos.closeEntry();
+		jos.putNextEntry(new ZipEntry("de/Test2.java"));
+		jos.write("package de; public class Test2{public int test(){return 22;}}".getBytes());
 		jos.closeEntry();
 		jos.close();
 		URLClassLoader cl = URLClassLoader.newInstance(new URL[] { tmpJar.toURL() });
@@ -30,17 +31,19 @@ public class JarOutputStreamTest {
 		Number n = (Number) k.getClass().getMethod("test").invoke(k);
 		assert n.intValue() == 22;
 	}
-	
-	public void testInterfaceJar() throws Exception {
-
+	public void testInheritance() throws Exception {
 		File tmpJar = File.createTempFile("s2j", "test.jar");
-
 		CompileJarOutputStream jos = new CompileJarOutputStream(new FileOutputStream(tmpJar));
+		jos.putNextEntry(new ZipEntry("de/Test.java"));
+		jos.write("package de; public class Test{public int test(){return 22;}}".getBytes());
+		jos.closeEntry();
 		jos.putNextEntry(new ZipEntry("de/Test2.java"));
-		jos.write("package de; public interface Test2{int test();}".getBytes());
+		jos.write("package de; public class Test2 extends Test{public int test(){return 22;}}".getBytes());
 		jos.closeEntry();
 		jos.close();
 		URLClassLoader cl = URLClassLoader.newInstance(new URL[] { tmpJar.toURL() });
-		Class k = cl.loadClass("de.Test2");
+		Object k = cl.loadClass("de.Test").newInstance();
+		Number n = (Number) k.getClass().getMethod("test").invoke(k);
+		assert n.intValue() == 22;
 	}
 }
