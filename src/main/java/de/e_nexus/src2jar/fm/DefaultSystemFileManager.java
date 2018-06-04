@@ -128,7 +128,9 @@ public class DefaultSystemFileManager implements DiscriminatorJavaFileManagerAda
 			endorsedPaths.add(file.toPath().toString());
 		}
 		if (!endorsedPaths.isEmpty()) {
-			fileManager.handleOption("-classpath", endorsedPaths.iterator());
+			fileManager.handleOption("-Xlint:path", Collections.<String>emptyList().iterator());
+			String s = String.join(File.pathSeparator, endorsedPaths);
+			fileManager.handleOption("-classpath", Collections.singleton(s).iterator());
 		}
 	}
 
